@@ -71,6 +71,11 @@ async function main(): Promise<void> {
         return;
     }
 
+    const { installNonDeepSeekNetworkRestrictions } = await import(
+        "../utils/networkRestrictions.js"
+    );
+    installNonDeepSeekNetworkRestrictions();
+
     // For all other paths, load the startup profiler
     const { profileCheckpoint } = await import("../utils/startupProfiler.js");
     profileCheckpoint("cli_entry");

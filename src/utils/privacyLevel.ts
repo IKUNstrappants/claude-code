@@ -79,11 +79,15 @@ function isProjectConfigDisablingNetwork(): boolean {
   )
 }
 
+export function isNonDeepSeekNetworkDisabled(): boolean {
+  return (
+    isProjectConfigDisablingNetwork() ||
+    isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)
+  )
+}
+
 export function getPrivacyLevel(): PrivacyLevel {
-  if (isProjectConfigDisablingNetwork()) {
-    return 'essential-traffic'
-  }
-  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+  if (isNonDeepSeekNetworkDisabled()) {
     return 'essential-traffic'
   }
   if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC)) {
