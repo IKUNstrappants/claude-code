@@ -1,12 +1,15 @@
 node_modules
 .DS_Store
 dist
+ClaudeCode-WSL.exe
+launcher-publish/
+launcher/bin/
+launcher/obj/
 coverage
 .env
 *.log
 .idea
 .vscode
 *.suo
-*.lock
 AGENTS.md
 codex_workspace/
