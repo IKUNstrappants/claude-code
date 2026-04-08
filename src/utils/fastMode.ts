@@ -405,6 +405,9 @@ export function resolveFastModeStatusFromCache(): void {
 }
 
 export async function prefetchFastModeStatus(): Promise<void> {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+    return
+  }
   // Skip network requests if nonessential traffic is disabled
   if (isEssentialTrafficOnly()) {
     return

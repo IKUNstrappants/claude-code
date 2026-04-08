@@ -3,6 +3,7 @@ import { getOauthConfig } from '../../constants/oauth.js'
 import { isClaudeAISubscriber } from '../../utils/auth.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { getOAuthHeaders, prepareApiRequest } from '../../utils/teleport/api.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 
 export type UltrareviewQuotaResponse = {
   reviews_used: number
@@ -17,6 +18,7 @@ export type UltrareviewQuotaResponse = {
  * the endpoint errors.
  */
 export async function fetchUltrareviewQuota(): Promise<UltrareviewQuotaResponse | null> {
+  if (isEssentialTrafficOnly()) return null
   if (!isClaudeAISubscriber()) return null
   try {
     const { accessToken, orgUUID } = await prepareApiRequest()

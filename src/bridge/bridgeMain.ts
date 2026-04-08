@@ -18,6 +18,7 @@ import { isEnvTruthy, isInProtectedNamespace } from '../utils/envUtils.js'
 import { errorMessage } from '../utils/errors.js'
 import { truncateToWidth } from '../utils/format.js'
 import { logError } from '../utils/log.js'
+import { isEssentialTrafficOnly } from '../utils/privacyLevel.js'
 import { sleep } from '../utils/sleep.js'
 import { createAgentWorktree, removeAgentWorktree } from '../utils/worktree.js'
 import {
@@ -1978,6 +1979,11 @@ async function fetchSessionTitle(
 }
 
 export async function bridgeMain(args: string[]): Promise<void> {
+  if (isEssentialTrafficOnly()) {
+    throw new Error(
+      'Remote Control / bridge mode is disabled in essential-traffic-only mode',
+    )
+  }
   const parsed = parseArgs(args)
 
   if (parsed.help) {
@@ -2811,6 +2817,11 @@ export async function runBridgeHeadless(
   opts: HeadlessBridgeOpts,
   signal: AbortSignal,
 ): Promise<void> {
+  if (isEssentialTrafficOnly()) {
+    throw new BridgeHeadlessPermanentError(
+      'Remote Control / bridge mode is disabled in essential-traffic-only mode',
+    )
+  }
   const { dir, log } = opts
 
   // Worker inherits the supervisor's CWD. chdir first so git utilities

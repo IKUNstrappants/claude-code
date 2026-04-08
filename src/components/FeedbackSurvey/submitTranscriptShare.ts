@@ -14,6 +14,7 @@ import {
 } from '../../utils/sessionStorage.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { redactSensitiveInfo } from '../Feedback.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 
 type TranscriptShareResult = {
   success: boolean
@@ -31,6 +32,12 @@ export async function submitTranscriptShare(
   trigger: TranscriptShareTrigger,
   appearanceId: string,
 ): Promise<TranscriptShareResult> {
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_TRANSCRIPT_SHARE)) {
+    logForDebugging('Transcript sharing disabled; skipping upload', {
+      level: 'info',
+    })
+    return { success: false }
+  }
   try {
     logForDebugging('Collecting transcript for sharing', { level: 'info' })
 

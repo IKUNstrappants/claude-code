@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { getOauthConfig } from '../../constants/oauth.js'
 import { getOAuthHeaders, prepareApiRequest } from '../../utils/teleport/api.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 
 export type AdminRequestType = 'limit_increase' | 'seat_upgrade'
 
@@ -49,6 +50,9 @@ export type AdminRequest = {
 export async function createAdminRequest(
   params: AdminRequestCreateParams,
 ): Promise<AdminRequest> {
+  if (isEssentialTrafficOnly()) {
+    throw new Error('Admin requests are disabled in essential-traffic-only mode')
+  }
   const { accessToken, orgUUID } = await prepareApiRequest()
 
   const headers = {
@@ -72,6 +76,9 @@ export async function getMyAdminRequests(
   requestType: AdminRequestType,
   statuses: AdminRequestStatus[],
 ): Promise<AdminRequest[] | null> {
+  if (isEssentialTrafficOnly()) {
+    return null
+  }
   const { accessToken, orgUUID } = await prepareApiRequest()
 
   const headers = {
@@ -102,6 +109,9 @@ type AdminRequestEligibilityResponse = {
 export async function checkAdminRequestEligibility(
   requestType: AdminRequestType,
 ): Promise<AdminRequestEligibilityResponse | null> {
+  if (isEssentialTrafficOnly()) {
+    return null
+  }
   const { accessToken, orgUUID } = await prepareApiRequest()
 
   const headers = {

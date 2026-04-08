@@ -15,6 +15,7 @@ import {
   getIsNonInteractiveSession,
   preferThirdPartyAuthentication,
 } from '../bootstrap/state.js'
+import { isEnvTruthy } from './envUtils.js'
 import {
   getMockSubscriptionType,
   shouldUseMockSubscription,
@@ -1428,6 +1429,9 @@ export function checkAndRefreshOAuthTokenIfNeeded(
   retryCount = 0,
   force = false,
 ): Promise<boolean> {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+    return Promise.resolve(false)
+  }
   // Deduplicate concurrent non-retry, non-force calls
   if (retryCount === 0 && !force) {
     if (pendingRefreshCheck) {

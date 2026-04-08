@@ -51,6 +51,9 @@ export type ApiResult<T> = { success: true; data: T } | { success: false }
  */
 export const getGroveSettings = memoize(
   async (): Promise<ApiResult<AccountSettings>> => {
+    if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+      return { success: false }
+    }
     // Grove is a notification feature; during an outage, skipping it is correct.
     if (isEssentialTrafficOnly()) {
       return { success: false }
@@ -88,6 +91,9 @@ export const getGroveSettings = memoize(
  * Mark that the Grove notice has been viewed by the user
  */
 export async function markGroveNoticeViewed(): Promise<void> {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+    return
+  }
   try {
     await withOAuth401Retry(() => {
       const authHeaders = getAuthHeaders()
@@ -120,6 +126,9 @@ export async function markGroveNoticeViewed(): Promise<void> {
 export async function updateGroveSettings(
   groveEnabled: boolean,
 ): Promise<void> {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+    return
+  }
   try {
     await withOAuth401Retry(() => {
       const authHeaders = getAuthHeaders()

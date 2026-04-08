@@ -2,6 +2,7 @@ import axios from 'axios'
 import { getOauthConfig } from '../constants/oauth.js'
 import type { SDKMessage } from '../entrypoints/agentSdkTypes.js'
 import { logForDebugging } from '../utils/debug.js'
+import { isEssentialTrafficOnly } from '../utils/privacyLevel.js'
 import { getOAuthHeaders, prepareApiRequest } from '../utils/teleport/api.js'
 
 export const HISTORY_PAGE_SIZE = 100
@@ -47,6 +48,10 @@ async function fetchPage(
   params: Record<string, string | number | boolean>,
   label: string,
 ): Promise<HistoryPage | null> {
+  if (isEssentialTrafficOnly()) {
+    logForDebugging(`[${label}] disabled in essential-traffic-only mode`)
+    return null
+  }
   const resp = await axios
     .get<SessionEventsResponse>(ctx.baseUrl, {
       headers: ctx.headers,

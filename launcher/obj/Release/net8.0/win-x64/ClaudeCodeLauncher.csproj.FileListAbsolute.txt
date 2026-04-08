@@ -1,0 +1,15 @@
+D:\Python_Projects\claude-code\launcher\bin\Release\net8.0\win-x64\ClaudeCodeLauncher.exe
+D:\Python_Projects\claude-code\launcher\bin\Release\net8.0\win-x64\ClaudeCodeLauncher.deps.json
+D:\Python_Projects\claude-code\launcher\bin\Release\net8.0\win-x64\ClaudeCodeLauncher.runtimeconfig.json
+D:\Python_Projects\claude-code\launcher\bin\Release\net8.0\win-x64\ClaudeCodeLauncher.dll
+D:\Python_Projects\claude-code\launcher\bin\Release\net8.0\win-x64\ClaudeCodeLauncher.pdb
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.GeneratedMSBuildEditorConfig.editorconfig
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.AssemblyInfoInputs.cache
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.AssemblyInfo.cs
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.csproj.CoreCompileInputs.cache
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.sourcelink.json
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.dll
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\refint\ClaudeCodeLauncher.dll
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.pdb
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ClaudeCodeLauncher.genruntimeconfig.cache
+D:\Python_Projects\claude-code\launcher\obj\Release\net8.0\win-x64\ref\ClaudeCodeLauncher.dll

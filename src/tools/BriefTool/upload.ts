@@ -25,7 +25,9 @@ import {
 } from '../../bridge/bridgeConfig.js'
 import { getOauthConfig } from '../../constants/oauth.js'
 import { logForDebugging } from '../../utils/debug.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { lazySchema } from '../../utils/lazySchema.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 
 // Matches the private_api backend limit
@@ -94,6 +96,14 @@ export async function uploadBriefAttachment(
   size: number,
   ctx: BriefUploadContext,
 ): Promise<string | undefined> {
+  if (isEssentialTrafficOnly()) {
+    debug(`skip ${fullPath}: brief uploads disabled in essential-traffic-only mode`)
+    return undefined
+  }
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_BRIEF_UPLOAD)) {
+    debug(`skip ${fullPath}: brief uploads disabled`)
+    return undefined
+  }
   // Positive pattern so bun:bundle eliminates the entire body from
   // non-BRIDGE_MODE builds (negative `if (!feature(...)) return` does not).
   if (feature('BRIDGE_MODE')) {

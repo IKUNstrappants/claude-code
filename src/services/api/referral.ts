@@ -8,6 +8,7 @@ import {
 import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { logError } from '../../utils/log.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 import { getOAuthHeaders, prepareApiRequest } from '../../utils/teleport/api.js'
 import type {
@@ -26,6 +27,14 @@ let fetchInProgress: Promise<ReferralEligibilityResponse | null> | null = null
 export async function fetchReferralEligibility(
   campaign: ReferralCampaign = 'claude_code_guest_pass',
 ): Promise<ReferralEligibilityResponse> {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+    return {
+      eligible: false,
+      has_passes: false,
+      remaining_passes: 0,
+      referrer_reward: null,
+    } as ReferralEligibilityResponse
+  }
   const { accessToken, orgUUID } = await prepareApiRequest()
 
   const headers = {
@@ -47,6 +56,9 @@ export async function fetchReferralEligibility(
 export async function fetchReferralRedemptions(
   campaign: string = 'claude_code_guest_pass',
 ): Promise<ReferralRedemptionsResponse> {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+    return { redemptions: [] } as ReferralRedemptionsResponse
+  }
   const { accessToken, orgUUID } = await prepareApiRequest()
 
   const headers = {
@@ -272,6 +284,9 @@ export async function getCachedOrFetchPassesEligibility(): Promise<ReferralEligi
  * Prefetch passes eligibility on startup
  */
 export async function prefetchPassesEligibility(): Promise<void> {
+  if (isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_NON_DEEPSEEK_NETWORK)) {
+    return
+  }
   // Skip network requests if nonessential traffic is disabled
   if (isEssentialTrafficOnly()) {
     return

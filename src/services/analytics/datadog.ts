@@ -3,6 +3,7 @@ import { createHash } from 'crypto'
 import memoize from 'lodash-es/memoize.js'
 import { getOrCreateUserID } from '../../utils/config.js'
 import { logError } from '../../utils/log.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 import { getCanonicalName } from '../../utils/model/model.js'
 import { getAPIProvider } from '../../utils/model/providers.js'
 import { MODEL_COSTS } from '../../utils/modelCost.js'
@@ -128,7 +129,7 @@ function scheduleFlush(): void {
 }
 
 export const initializeDatadog = memoize(async (): Promise<boolean> => {
-  if (isAnalyticsDisabled()) {
+  if (isAnalyticsDisabled() || isEssentialTrafficOnly()) {
     datadogInitialized = false
     return false
   }
@@ -161,7 +162,7 @@ export async function trackDatadogEvent(
   eventName: string,
   properties: { [key: string]: boolean | number | undefined },
 ): Promise<void> {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production' || isEssentialTrafficOnly()) {
     return
   }
 

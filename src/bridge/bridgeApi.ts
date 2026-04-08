@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { isEssentialTrafficOnly } from '../utils/privacyLevel.js'
 
 import { debugBody, extractErrorDetail } from './debugUtils.js'
 import {
@@ -66,6 +67,12 @@ export class BridgeFatalError extends Error {
 }
 
 export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
+  function ensureBridgeAllowed(context: string): void {
+    if (isEssentialTrafficOnly()) {
+      throw new Error(`${context} is disabled in essential-traffic-only mode`)
+    }
+  }
+
   function debug(msg: string): void {
     deps.onDebug?.(msg)
   }
@@ -142,6 +149,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
     async registerBridgeEnvironment(
       config: BridgeConfig,
     ): Promise<{ environment_id: string; environment_secret: string }> {
+      ensureBridgeAllowed('Remote Control / bridge registration')
       debug(
         `[bridge:api] POST /v1/environments/bridge bridgeId=${config.bridgeId}`,
       )
@@ -202,6 +210,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
       signal?: AbortSignal,
       reclaimOlderThanMs?: number,
     ): Promise<WorkResponse | null> {
+      ensureBridgeAllowed('Remote Control / bridge polling')
       validateBridgeId(environmentId, 'environmentId')
 
       // Save and reset so errors break the "consecutive empty" streak.
@@ -251,6 +260,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
       workId: string,
       sessionToken: string,
     ): Promise<void> {
+      ensureBridgeAllowed('Remote Control / bridge work acknowledgement')
       validateBridgeId(environmentId, 'environmentId')
       validateBridgeId(workId, 'workId')
 
@@ -275,6 +285,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
       workId: string,
       force: boolean,
     ): Promise<void> {
+      ensureBridgeAllowed('Remote Control / bridge stop-work')
       validateBridgeId(environmentId, 'environmentId')
       validateBridgeId(workId, 'workId')
 
@@ -299,6 +310,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
     },
 
     async deregisterEnvironment(environmentId: string): Promise<void> {
+      ensureBridgeAllowed('Remote Control / bridge deregistration')
       validateBridgeId(environmentId, 'environmentId')
 
       debug(`[bridge:api] DELETE /v1/environments/bridge/${environmentId}`)
@@ -323,6 +335,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
     },
 
     async archiveSession(sessionId: string): Promise<void> {
+      ensureBridgeAllowed('Remote Control / session archiving')
       validateBridgeId(sessionId, 'sessionId')
 
       debug(`[bridge:api] POST /v1/sessions/${sessionId}/archive`)
@@ -359,6 +372,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
       environmentId: string,
       sessionId: string,
     ): Promise<void> {
+      ensureBridgeAllowed('Remote Control / session reconnect')
       validateBridgeId(environmentId, 'environmentId')
       validateBridgeId(sessionId, 'sessionId')
 
@@ -389,6 +403,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
       workId: string,
       sessionToken: string,
     ): Promise<{ lease_extended: boolean; state: string }> {
+      ensureBridgeAllowed('Remote Control / work heartbeat')
       validateBridgeId(environmentId, 'environmentId')
       validateBridgeId(workId, 'workId')
 
@@ -421,6 +436,7 @@ export function createBridgeApiClient(deps: BridgeApiDeps): BridgeApiClient {
       event: PermissionResponseEvent,
       sessionToken: string,
     ): Promise<void> {
+      ensureBridgeAllowed('Remote Control / permission response')
       validateBridgeId(sessionId, 'sessionId')
 
       debug(

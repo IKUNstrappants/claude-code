@@ -49,6 +49,7 @@ import { buildRedirectUri, findAvailablePort } from './oauthPort.js'
 import type { McpHTTPServerConfig, McpSSEServerConfig } from './types.js'
 import { getLoggingSafeMcpBaseUrl } from './utils.js'
 import { performCrossAppAccess, XaaTokenExchangeError } from './xaa.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 import {
   acquireIdpIdToken,
   clearIdpIdToken,
@@ -469,6 +470,9 @@ export async function revokeServerTokens(
   serverConfig: McpSSEServerConfig | McpHTTPServerConfig,
   { preserveStepUpState = false }: { preserveStepUpState?: boolean } = {},
 ): Promise<void> {
+  if (isEssentialTrafficOnly()) {
+    return
+  }
   const storage = getSecureStorage()
   const existingData = storage.read()
   if (!existingData?.mcpOAuth) return
@@ -854,6 +858,9 @@ export async function performMCPOAuthFlow(
     onWaitingForCallback?: (submit: (callbackUrl: string) => void) => void
   },
 ): Promise<void> {
+  if (isEssentialTrafficOnly()) {
+    throw new Error('MCP OAuth is disabled in essential-traffic-only mode')
+  }
   // XAA (SEP-990): if configured, bypass the per-server consent dance.
   // If the IdP id_token isn't cached, this pops the browser once at the IdP
   // (shared across all XAA servers for that issuer). Subsequent servers hit
@@ -1538,6 +1545,9 @@ export class ClaudeAuthProvider implements OAuthClientProvider {
   }
 
   async tokens(): Promise<OAuthTokens | undefined> {
+    if (isEssentialTrafficOnly()) {
+      return undefined
+    }
     // Cross-process token changes (another CC instance refreshed or invalidated)
     // are picked up via the keychain cache TTL (see macOsKeychainStorage.ts).
     // In-process writes already invalidate the cache via storage.update().

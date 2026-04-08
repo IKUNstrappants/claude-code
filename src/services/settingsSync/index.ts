@@ -41,6 +41,7 @@ import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../analytics/growthbook.js'
 import { logEvent } from '../analytics/index.js'
 import { getRetryDelay } from '../api/withRetry.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 import {
   type SettingsSyncFetchResult,
   type SettingsSyncUploadResult,
@@ -59,6 +60,10 @@ const MAX_FILE_SIZE_BYTES = 500 * 1024 // 500 KB per file (matches backend limit
  */
 export async function uploadUserSettingsInBackground(): Promise<void> {
   try {
+    if (isEssentialTrafficOnly()) {
+      logForDiagnosticsNoPII('info', 'settings_sync_disabled')
+      return
+    }
     if (
       !feature('UPLOAD_USER_SETTINGS') ||
       !getFeatureValue_CACHED_MAY_BE_STALE(
@@ -246,6 +251,13 @@ function getSettingsSyncAuthHeaders(): {
 
 async function fetchUserSettingsOnce(): Promise<SettingsSyncFetchResult> {
   try {
+    if (isEssentialTrafficOnly()) {
+      return {
+        success: false,
+        error: 'Settings sync disabled in essential-traffic-only mode',
+        skipRetry: true,
+      }
+    }
     await checkAndRefreshOAuthTokenIfNeeded()
 
     const authHeaders = getSettingsSyncAuthHeaders()
@@ -348,6 +360,12 @@ async function uploadUserSettings(
   entries: Record<string, string>,
 ): Promise<SettingsSyncUploadResult> {
   try {
+    if (isEssentialTrafficOnly()) {
+      return {
+        success: false,
+        error: 'Settings sync disabled in essential-traffic-only mode',
+      }
+    }
     await checkAndRefreshOAuthTokenIfNeeded()
 
     const authHeaders = getSettingsSyncAuthHeaders()

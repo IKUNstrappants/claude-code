@@ -524,6 +524,11 @@ async function submitFeedback(data: FeedbackData, signal?: AbortSignal): Promise
   feedbackId?: string;
   isZdrOrg?: boolean;
 }> {
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_FEEDBACK_UPLOAD)) {
+    return {
+      success: false
+    };
+  }
   if (isEssentialTrafficOnly()) {
     return {
       success: false

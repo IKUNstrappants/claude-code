@@ -13,6 +13,7 @@ import { logEventTo1P, shouldSampleEvent } from './firstPartyEventLogger.js'
 import { checkStatsigFeatureGate_CACHED_MAY_BE_STALE } from './growthbook.js'
 import { attachAnalyticsSink, stripProtoFields } from './index.js'
 import { isSinkKilled } from './sinkKillswitch.js'
+import { isEnvTruthy } from '../../utils/envUtils.js'
 
 // Local type matching the logEvent metadata signature
 type LogEventMetadata = { [key: string]: boolean | number | undefined }
@@ -27,6 +28,9 @@ let isDatadogGateEnabled: boolean | undefined = undefined
  * Falls back to cached value from previous session if not yet initialized.
  */
 function shouldTrackDatadog(): boolean {
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_DATADOG)) {
+    return false
+  }
   if (isSinkKilled('datadog')) {
     return false
   }
@@ -107,6 +111,13 @@ export function initializeAnalyticsGates(): void {
  * Idempotent: safe to call multiple times (subsequent calls are no-ops).
  */
 export function initializeAnalyticsSink(): void {
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_ANALYTICS)) {
+    attachAnalyticsSink({
+      logEvent: () => {},
+      logEventAsync: async () => {},
+    })
+    return
+  }
   attachAnalyticsSink({
     logEvent: logEventImpl,
     logEventAsync: logEventAsyncImpl,

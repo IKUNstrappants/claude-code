@@ -8,3 +8,5 @@ coverage
 .vscode
 *.suo
 *.lock
+AGENTS.md
+codex_workspace/

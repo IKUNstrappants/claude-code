@@ -4,6 +4,7 @@ import { getGlobalConfig, saveGlobalConfig } from '../../utils/config.js'
 import { getAuthHeaders } from '../../utils/http.js'
 import { logError } from '../../utils/log.js'
 import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 
 /**
  * Fetch the user's first Claude Code token date and store in config.
@@ -11,6 +12,9 @@ import { getClaudeCodeUserAgent } from '../../utils/userAgent.js'
  */
 export async function fetchAndStoreClaudeCodeFirstTokenDate(): Promise<void> {
   try {
+    if (isEssentialTrafficOnly()) {
+      return
+    }
     const config = getGlobalConfig()
 
     if (config.claudeCodeFirstTokenDate !== undefined) {

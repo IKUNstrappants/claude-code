@@ -30,6 +30,7 @@ const KEEPALIVE_MSG = '{"type":"KeepAlive"}'
 const CLOSE_STREAM_MSG = '{"type":"CloseStream"}'
 
 import { getFeatureValue_CACHED_MAY_BE_STALE } from './analytics/growthbook.js'
+import { isEssentialTrafficOnly } from '../utils/privacyLevel.js'
 
 // ─── Constants ───────────────────────────────────────────────────────
 
@@ -112,6 +113,9 @@ export async function connectVoiceStream(
   callbacks: VoiceStreamCallbacks,
   options?: { language?: string; keyterms?: string[] },
 ): Promise<VoiceStreamConnection | null> {
+  if (isEssentialTrafficOnly()) {
+    return null
+  }
   // Ensure OAuth token is fresh before connecting
   await checkAndRefreshOAuthTokenIfNeeded()
 

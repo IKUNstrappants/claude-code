@@ -3,6 +3,7 @@ import type { HookEvent } from 'src/entrypoints/agentSdkTypes.js'
 import { createCombinedAbortSignal } from '../combinedAbortSignal.js'
 import { logForDebugging } from '../debug.js'
 import { errorMessage } from '../errors.js'
+import { isEnvTruthy } from '../envUtils.js'
 import { getProxyUrl, shouldBypassProxy } from '../proxy.js'
 // Import as namespace so spyOn works in tests (direct imports bypass spies)
 import * as settingsModule from '../settings/settings.js'
@@ -132,6 +133,11 @@ export async function execHttpHook(
   error?: string
   aborted?: boolean
 }> {
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_HTTP_HOOKS)) {
+    const msg = `HTTP hooks disabled: ${hook.url}`
+    logForDebugging(msg, { level: 'warn' })
+    return { ok: false, body: '', error: msg }
+  }
   // Enforce URL allowlist before any I/O. Follows allowedMcpServers semantics:
   // undefined → no restriction; [] → block all; non-empty → must match a pattern.
   const policy = getHttpHookPolicy()

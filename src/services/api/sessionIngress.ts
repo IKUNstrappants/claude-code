@@ -11,6 +11,7 @@ import { getSessionIngressAuthToken } from '../../utils/sessionIngressAuth.js'
 import { sleep } from '../../utils/sleep.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 import { getOAuthHeaders } from '../../utils/teleport/api.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 
 interface SessionIngressError {
   error?: {
@@ -195,6 +196,13 @@ export async function appendSessionLog(
   entry: TranscriptMessage,
   url: string,
 ): Promise<boolean> {
+  if (isEssentialTrafficOnly()) {
+    logForDebugging(
+      'Session persistence disabled in essential-traffic-only mode',
+    )
+    logForDiagnosticsNoPII('info', 'session_persist_disabled')
+    return false
+  }
   const sessionToken = getSessionIngressAuthToken()
   if (!sessionToken) {
     logForDebugging('No session token available for session persistence')
@@ -218,6 +226,13 @@ export async function getSessionLogs(
   sessionId: string,
   url: string,
 ): Promise<Entry[] | null> {
+  if (isEssentialTrafficOnly()) {
+    logForDebugging(
+      'Session hydration disabled in essential-traffic-only mode',
+    )
+    logForDiagnosticsNoPII('info', 'session_get_disabled')
+    return null
+  }
   const sessionToken = getSessionIngressAuthToken()
   if (!sessionToken) {
     logForDebugging('No session token available for fetching session logs')
@@ -248,6 +263,13 @@ export async function getSessionLogsViaOAuth(
   accessToken: string,
   orgUUID: string,
 ): Promise<Entry[] | null> {
+  if (isEssentialTrafficOnly()) {
+    logForDebugging(
+      'Session hydration via OAuth disabled in essential-traffic-only mode',
+    )
+    logForDiagnosticsNoPII('info', 'session_get_oauth_disabled')
+    return null
+  }
   const url = `${getOauthConfig().BASE_API_URL}/v1/session_ingress/session/${sessionId}`
   logForDebugging(`[session-ingress] Fetching session logs from: ${url}`)
   const headers = {
@@ -293,6 +315,11 @@ export async function getTeleportEvents(
   accessToken: string,
   orgUUID: string,
 ): Promise<Entry[] | null> {
+  if (isEssentialTrafficOnly()) {
+    logForDebugging('[teleport] Disabled in essential-traffic-only mode')
+    logForDiagnosticsNoPII('info', 'teleport_events_disabled')
+    return null
+  }
   const baseUrl = `${getOauthConfig().BASE_API_URL}/v1/code/sessions/${sessionId}/teleport-events`
   const headers = {
     ...getOAuthHeaders(accessToken),
@@ -422,6 +449,9 @@ async function fetchSessionLogsFromUrl(
   url: string,
   headers: Record<string, string>,
 ): Promise<Entry[] | null> {
+  if (isEssentialTrafficOnly()) {
+    return null
+  }
   try {
     const response = await axios.get(url, {
       headers,

@@ -21,6 +21,7 @@ import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
 } from '../analytics/index.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 
 // Files API is currently in beta. oauth-2025-04-20 enables Bearer OAuth
 // on public-api routes (auth.py: "oauth_auth" not in beta_versions → 404).
@@ -133,6 +134,9 @@ export async function downloadFile(
   fileId: string,
   config: FilesApiConfig,
 ): Promise<Buffer> {
+  if (isEssentialTrafficOnly()) {
+    throw new Error('Files API is disabled in essential-traffic-only mode')
+  }
   const baseUrl = config.baseUrl || getDefaultApiBaseUrl()
   const url = `${baseUrl}/v1/files/${fileId}/content`
 
@@ -319,6 +323,14 @@ export async function downloadSessionFiles(
   config: FilesApiConfig,
   concurrency: number = DEFAULT_CONCURRENCY,
 ): Promise<DownloadResult[]> {
+  if (isEssentialTrafficOnly()) {
+    return files.map(file => ({
+      fileId: file.fileId,
+      path: file.relativePath,
+      success: false,
+      error: 'Files API is disabled in essential-traffic-only mode',
+    }))
+  }
   if (files.length === 0) {
     return []
   }
@@ -381,6 +393,13 @@ export async function uploadFile(
   config: FilesApiConfig,
   opts?: { signal?: AbortSignal },
 ): Promise<UploadResult> {
+  if (isEssentialTrafficOnly()) {
+    return {
+      path: relativePath,
+      error: 'Files API is disabled in essential-traffic-only mode',
+      success: false,
+    }
+  }
   const baseUrl = config.baseUrl || getDefaultApiBaseUrl()
   const url = `${baseUrl}/v1/files`
 
@@ -572,6 +591,13 @@ export async function uploadSessionFiles(
   config: FilesApiConfig,
   concurrency: number = DEFAULT_CONCURRENCY,
 ): Promise<UploadResult[]> {
+  if (isEssentialTrafficOnly()) {
+    return files.map(file => ({
+      path: file.relativePath,
+      error: 'Files API is disabled in essential-traffic-only mode',
+      success: false,
+    }))
+  }
   if (files.length === 0) {
     return []
   }
@@ -618,6 +644,9 @@ export async function listFilesCreatedAfter(
   afterCreatedAt: string,
   config: FilesApiConfig,
 ): Promise<FileMetadata[]> {
+  if (isEssentialTrafficOnly()) {
+    return []
+  }
   const baseUrl = config.baseUrl || getDefaultApiBaseUrl()
   const headers = {
     Authorization: `Bearer ${config.oauthToken}`,

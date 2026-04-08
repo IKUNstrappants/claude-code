@@ -230,6 +230,7 @@ function getMcpToolTimeoutMs(): number {
 }
 
 import { isClaudeInChromeMCPServer } from '../../utils/claudeInChrome/common.js'
+import { isEssentialTrafficOnly } from '../../utils/privacyLevel.js'
 
 // Lazy: toolRendering.tsx pulls React/ink; only needed when Claude-in-Chrome MCP server is connected
 /* eslint-disable @typescript-eslint/no-require-imports */
@@ -606,6 +607,13 @@ export const connectToServer = memoize(
       wsIdeCount: number
     },
   ): Promise<MCPServerConnection> => {
+    if (isEssentialTrafficOnly()) {
+      return {
+        type: 'failed' as const,
+        name,
+        config: { ...serverRef, scope: 'user' as const },
+      }
+    }
     const connectStartTime = Date.now()
     let inProcessServer:
       | { connect(t: Transport): Promise<void>; close(): Promise<void> }
@@ -1690,6 +1698,12 @@ export async function clearServerCache(
 export async function ensureConnectedClient(
   client: ConnectedMCPServer,
 ): Promise<ConnectedMCPServer> {
+  if (isEssentialTrafficOnly()) {
+    throw new TelemetrySafeError_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS(
+      `MCP server "${client.name}" is disabled in essential-traffic-only mode`,
+      'MCP server disabled',
+    )
+  }
   // SDK MCP servers run in-process and are handled separately via setupSdkMcpClients
   if (client.config.type === 'sdk') {
     return client
@@ -3272,6 +3286,9 @@ export async function setupSdkMcpClients(
   clients: MCPServerConnection[]
   tools: Tool[]
 }> {
+  if (isEssentialTrafficOnly()) {
+    return { clients: [], tools: [] }
+  }
   const clients: MCPServerConnection[] = []
   const tools: Tool[] = []
 

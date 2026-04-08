@@ -1,0 +1,2 @@
+D:\Python_Projects\claude-code\launcher-publish\ClaudeCodeLauncher.pdb
+D:\Python_Projects\claude-code\launcher-publish\ClaudeCodeLauncher.exe

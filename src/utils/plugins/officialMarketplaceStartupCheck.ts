@@ -147,6 +147,19 @@ export type OfficialMarketplaceCheckResult = {
 export async function checkAndInstallOfficialMarketplace(): Promise<OfficialMarketplaceCheckResult> {
   const config = getGlobalConfig()
 
+  // Auto-install is opt-in only. Keep marketplace browsing/install commands
+  // available, but do not silently materialize anything on startup.
+  if (!isEnvTruthy(process.env.CLAUDE_CODE_ENABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL)) {
+    logForDebugging(
+      'Official marketplace auto-install disabled by default; skipping startup install',
+    )
+    return {
+      installed: false,
+      skipped: true,
+      reason: 'policy_blocked',
+    }
+  }
+
   // Check if we should retry installation
   if (!shouldRetryInstallation(config)) {
     const reason: OfficialMarketplaceSkipReason =
