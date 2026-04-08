@@ -25,6 +25,8 @@ if [ -f "$HOME/.config/claude-code/deepseek.env" ]; then
 else
   echo "ENV_FILE=missing"
 fi
-echo "ANTHROPIC_BASE_URL=https://api.deepseek.com/beta"
+echo "ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic"
+echo "ANTHROPIC_MODEL=deepseek-chat"
+echo "ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-chat"
 echo "CLAUDE_CODE_MAX_CONTEXT_TOKENS=128000"
 echo "CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192"

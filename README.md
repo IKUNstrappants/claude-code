@@ -2,7 +2,7 @@
 
 Claude Code Best V3 是一个对 Anthropic 官方 Claude Code CLI 的逆向还原项目。目标是保留它作为终端 AI 编程助手的核心能力，同时把仓库整理成更适合研究、定制和本地构建的形态。
 
-这个仓库现在采用 DeepSeek-only 的运行方式。启动器默认走 DeepSeek API，token 上限也已经按 DeepSeek 的输入输出限制收敛。更具体的启动方式、API Key 配置和 DeepSeek 约束，请直接看 [MANUAL.md](MANUAL.md)。
+这个仓库现在采用 DeepSeek-only 的运行方式。启动器默认走 DeepSeek 的 Anthropic 兼容端点，token 上限也已经按 DeepSeek 的输入输出限制收敛。更具体的启动方式、API Key 配置和 DeepSeek 约束，请直接看 [MANUAL.md](MANUAL.md)。
 
 ## 项目概览
 

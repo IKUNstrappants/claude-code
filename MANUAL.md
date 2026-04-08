@@ -108,13 +108,19 @@ ANTHROPIC_API_KEY
 mkdir -p ~/.config/claude-code
 cat > ~/.config/claude-code/deepseek.env <<'EOF'
 export ANTHROPIC_API_KEY="你的 DeepSeek API Key"
+# 或者：
+# export ANTHROPIC_AUTH_TOKEN="你的 DeepSeek API Key"
 EOF
 ```
+
+启动器会优先规范成 `ANTHROPIC_API_KEY`，避免同时存在 `ANTHROPIC_API_KEY` 和 `ANTHROPIC_AUTH_TOKEN` 时触发认证冲突提示。
 
 启动器会固定使用这些内置配置：
 
 ```bash
-ANTHROPIC_BASE_URL=https://api.deepseek.com/beta
+ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+ANTHROPIC_MODEL=deepseek-chat
+ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-chat
 CLAUDE_CODE_MAX_CONTEXT_TOKENS=128000
 CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192
 ```
