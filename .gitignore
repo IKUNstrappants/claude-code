@@ -13,3 +13,16 @@ coverage
 *.suo
 AGENTS.md
 codex_workspace/
+
+# Claude Code local config
+.claude/
+
+# Claude Code session/state files (global ~/.claude dir is outside repo)
+*.jsonl
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

@@ -54,10 +54,7 @@ bun ./dist/cli.js
 
 ## 3. 打开到指定项目目录
 
-如果你希望 Claude Code 一启动就工作在另一个项目里，推荐这样做：
-
-1. 先进入目标项目目录
-2. 再运行这个仓库构建出来的 CLI
+如果你希望 Claude Code 一启动就工作在另一个项目里，推荐优先使用仓库自带的启动脚本。
 
 例如，你想操作的是同级目录下的另一个项目：
 
@@ -71,13 +68,27 @@ bun ./dist/cli.js
 cd ../my-app
 ```
 
-然后从当前仓库运行 CLI：
+然后直接运行：
+
+```bash
+bash ../claude-code/launcher-project.sh
+```
+
+或者不先 `cd`，直接把目标目录传进去：
+
+```bash
+bash ../claude-code/launcher-project.sh ../my-app
+```
+
+这样启动后，Claude Code 的当前工作目录就是目标项目目录。
+
+不推荐直接运行下面这个命令：
 
 ```bash
 ~/.bun/bin/bun ../claude-code/dist/cli.js
 ```
 
-这样启动后，Claude Code 的当前工作目录就是你刚才进入的目标项目目录。
+因为它不会自动加载 `~/.config/claude-code/deepseek.env`，在别的项目里很容易显示 `Not logged in`。
 
 ## 4. 首次使用推荐流程
 
@@ -86,8 +97,7 @@ cd ../my-app
 ```bash
 bun install
 bun run build
-cd ../my-app
-~/.bun/bin/bun ../claude-code/dist/cli.js
+bash ./launcher-project.sh ../my-app
 ```
 
 这里的 `../my-app` 只是示例，你可以换成自己的项目目录。
@@ -121,7 +131,7 @@ EOF
 ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
 ANTHROPIC_MODEL=deepseek-chat
 ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-chat
-CLAUDE_CODE_MAX_CONTEXT_TOKENS=128000
+CLAUDE_CODE_MAX_CONTEXT_TOKENS=102400
 CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192
 ```
 
@@ -154,6 +164,32 @@ bun --version
 如果你要操作别的项目，请先 `cd` 到目标目录，再运行：
 
 ```bash
+bash ../claude-code/launcher-project.sh
+```
+
+### 在别的项目里显示 `Not logged in`
+
+这通常不是账号丢了，而是你直接运行了：
+
+```bash
+~/.bun/bin/bun ../claude-code/dist/cli.js
+```
+
+这个命令不会自动加载 `~/.config/claude-code/deepseek.env`，所以进程里没有 `ANTHROPIC_API_KEY`。
+
+改成下面任意一种即可：
+
+```bash
+bash ../claude-code/launcher-project.sh
+```
+
+或者：
+
+```bash
+source ~/.config/claude-code/deepseek.env
+export ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic
+export ANTHROPIC_MODEL=deepseek-chat
+export ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-chat
 ~/.bun/bin/bun ../claude-code/dist/cli.js
 ```
 
@@ -169,4 +205,4 @@ bun run build
 ## 7. 一句话总结
 
 - 想打开当前仓库：直接运行 `ClaudeCode-WSL.exe`
-- 想打开别的项目：先 `cd` 到目标目录，再运行 `../claude-code/dist/cli.js`
+- 想打开别的项目：优先运行 `bash ../claude-code/launcher-project.sh`
