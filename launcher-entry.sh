@@ -31,32 +31,32 @@ if [ -f "$HOME/.bashrc" ]; then
   . "$HOME/.bashrc" >/dev/null 2>&1 || true
 fi
 
+# Load model configuration (single source of truth)
 ENV_FILE="$HOME/.config/claude-code/deepseek.env"
 if [ -f "$ENV_FILE" ]; then
   # shellcheck disable=SC1090
   . "$ENV_FILE"
+else
+  echo "WARNING: $ENV_FILE not found" >&2
 fi
 
-# DeepSeek's Anthropic-compatible endpoint for Claude Code.
-# Normalize to ANTHROPIC_API_KEY to avoid Claude Code's auth conflict warning.
+# Normalize auth input: DeepSeek key may come as ANTHROPIC_AUTH_TOKEN
+# from the Windows launcher; always use ANTHROPIC_API_KEY internally.
 if [ -z "${ANTHROPIC_API_KEY:-}" ] && [ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]; then
   ANTHROPIC_API_KEY="$ANTHROPIC_AUTH_TOKEN"
 fi
 unset ANTHROPIC_AUTH_TOKEN
-
-ANTHROPIC_BASE_URL="https://api.deepseek.com/anthropic"
-ANTHROPIC_MODEL="${ANTHROPIC_MODEL:-deepseek-v4-pro}"
-ANTHROPIC_DEFAULT_HAIKU_MODEL="${ANTHROPIC_DEFAULT_HAIKU_MODEL:-deepseek-v4-pro}"
-ANTHROPIC_SMALL_FAST_MODEL="${ANTHROPIC_SMALL_FAST_MODEL:-deepseek-v4-flash}"
-export ANTHROPIC_BASE_URL
-export ANTHROPIC_MODEL
-export ANTHROPIC_DEFAULT_HAIKU_MODEL
-export ANTHROPIC_SMALL_FAST_MODEL
 export ANTHROPIC_API_KEY
-CLAUDE_CODE_MAX_CONTEXT_TOKENS="102400"
-CLAUDE_CODE_MAX_OUTPUT_TOKENS="8192"
-export CLAUDE_CODE_MAX_CONTEXT_TOKENS
-export CLAUDE_CODE_MAX_OUTPUT_TOKENS
+
+# Ensure required env vars have fallback defaults in case deepseek.env is missing them
+: "${ANTHROPIC_BASE_URL:='https://api.deepseek.com/anthropic'}"
+: "${ANTHROPIC_MODEL:='deepseek-v4-pro'}"
+: "${ANTHROPIC_DEFAULT_HAIKU_MODEL:='deepseek-v4-pro'}"
+: "${ANTHROPIC_SMALL_FAST_MODEL:='deepseek-v4-flash'}"
+: "${CLAUDE_CODE_MAX_CONTEXT_TOKENS:='102400'}"
+: "${CLAUDE_CODE_MAX_OUTPUT_TOKENS:='8192'}"
+export ANTHROPIC_BASE_URL ANTHROPIC_MODEL ANTHROPIC_DEFAULT_HAIKU_MODEL
+export ANTHROPIC_SMALL_FAST_MODEL CLAUDE_CODE_MAX_CONTEXT_TOKENS CLAUDE_CODE_MAX_OUTPUT_TOKENS
 
 BUN="$HOME/.bun/bin/bun"
 if [ ! -x "$BUN" ]; then
