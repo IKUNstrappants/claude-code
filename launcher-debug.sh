@@ -26,7 +26,8 @@ else
   echo "ENV_FILE=missing"
 fi
 echo "ANTHROPIC_BASE_URL=https://api.deepseek.com/anthropic"
-echo "ANTHROPIC_MODEL=deepseek-chat"
-echo "ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-chat"
+echo "ANTHROPIC_MODEL=deepseek-v4-pro"
+echo "ANTHROPIC_DEFAULT_HAIKU_MODEL=deepseek-v4-pro"
+echo "ANTHROPIC_SMALL_FAST_MODEL=deepseek-v4-flash"
 echo "CLAUDE_CODE_MAX_CONTEXT_TOKENS=102400"
 echo "CLAUDE_CODE_MAX_OUTPUT_TOKENS=8192"
